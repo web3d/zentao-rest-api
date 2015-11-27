@@ -7,7 +7,7 @@ use zentao\nb\Resource;
 /**
  * 词典
  */
-class Enums extends Resource {
+class Enum extends Resource {
     
     public function run() {
         
@@ -19,18 +19,19 @@ class Enums extends Resource {
      * GET /enumerations/issue_priorities.xml
      */
     public function issue_priorities() {
-        echo json_encode(array('issue_priorities' => array(
-            'id' => 1,
-            'login' => 'jimmy',
-            'firstname' => 'redmine',
-            'lastname' => 'Admin',
-            'mail' => 'admin@admin.com',
-            'created_on' => '2015-11-15T06:28:10Z',
-            'last_login_on' => '2015-11-15T06:28:10Z',
-            'api_key' => 'bf4df8c515968257c5d9622a8998ff9b7d1b23f3',
-            'status' => 1
-            )));
+        global $app;
+
+        $priorities = $app->loadLang('bug')->bug->priList;
+        $issue_priorities = array();
+        foreach ($priorities as $key => $priority) {
+            if ($priority == '') {
+                $priority = '-';
+            }
+            
+            $issue_priorities[] = array('id' => $key, 'name' => $priority);
+        }
         
+        echo json_encode(array('issue_priorities' => $issue_priorities));
     }
     
     /**
@@ -42,15 +43,6 @@ class Enums extends Resource {
     }
     
     public function time_entries() {
-        
-    }
-    
-    /**
-     * /issue_statuses.:format
-     * @link http://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses
-     * GET /issue_statuses.xml
-     */
-    public function issue_statuses() {
         
     }
 }

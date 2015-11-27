@@ -7,7 +7,7 @@ use zentao\nb\Resource;
 /**
  * 用户实体
  */
-class Users extends Resource {
+class User extends Resource {
     
     /**
      * 默认控制器 返回用户列表 GET /users.xml
@@ -17,7 +17,9 @@ class Users extends Resource {
      * @param int $group_id 给定分组的用户
      */
     public function fetchAll($status = 1, $name = '', $group_id = 0) {
+        global $app;
         
+        $model = $this->loadModel('user');
     }
     
     /**
@@ -44,17 +46,29 @@ class Users extends Resource {
      * GET /users/current.xml
      * @param string $key
      */
-    public function fetchByKey() {
+    public function fetchByKey($format = 'json') {
+        global $app;
+        
+        $key = !empty($_GET['key']) ? trim($_GET['key']) : '';
+        if (!$key) {
+            exit;
+        }
+        
+        $model = $this->loadModel('user');
+        $user = $model->dao->select('*')->from(TABLE_USER)->where('api_key')->eq($key)->fetch();
+        if (!$user) {
+            exit;
+        }
         echo json_encode(array('user' => array(
-            'id' => 1,
-            'login' => 'jimmy',
-            'firstname' => 'redmine',
-            'lastname' => 'Admin',
-            'mail' => 'admin@admin.com',
-            'created_on' => '2015-11-15T06:28:10Z',
-            'last_login_on' => '2015-11-15T06:28:10Z',
-            'api_key' => 'bf4df8c515968257c5d9622a8998ff9b7d1b23f3',
-            'status' => 1
+            'id' => $user->id,
+            'login' => $user->account,
+            'firstname' => $user->nickname,
+            'lastname' => $user->realname,
+            'mail' => $user->email,
+            'created_on' => '00-00-00T00:00:00Z',
+            'last_login_on' => date('Y-m-d\TH:i:s\Z'),
+            'api_key' => $user->api_key,
+            'status' => $user->deleted ? 0 : 1
             )));
         
     }

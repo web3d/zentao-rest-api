@@ -273,6 +273,12 @@ class Application {
         $this->setBasePath();
         $this->setFrameRoot();
         $this->setCoreLibRoot();
+        /* Load the framework. */
+
+        include $this->frameRoot . 'control.class.php';
+        include $this->frameRoot . 'model.class.php';
+        include $this->frameRoot . 'helper.class.php';
+        
         $this->setAppRoot($appName, $appRoot);
         $this->setTmpRoot();
         $this->setCacheRoot();
@@ -318,10 +324,25 @@ class Application {
      * @access public
      * @return object   the app object
      */
-    public static function createApp($appName = 'demo', $appRoot = '', $className = 'router') {
-        if (empty($className))
-            $className = __CLASS__;
+    public static function createApp($appName = 'demo', $appRoot = '') {
+        $className = __CLASS__;
         return new $className($appName, $appRoot);
+    }
+    
+    private static $_app;
+
+    /**
+     * 
+     * @param type $appName
+     * @param type $appRoot
+     * @return Application
+     */
+    public static function app($appName = 'demo', $appRoot = '') {
+        if (!self::$_app instanceof Application) {
+            self::$_app = new Application($appName, $appRoot);
+        }
+        
+        return self::$_app;
     }
 
     //-------------------- path related methods --------------------//
@@ -343,7 +364,7 @@ class Application {
      * @return void
      */
     protected function setBasePath() {
-        $this->basePath = realpath(dirname(dirname(__FILE__))) . $this->pathFix;
+        $this->basePath = realpath(dirname(dirname(ZTNB_ROOT))) . $this->pathFix;
     }
 
     /**
@@ -374,12 +395,9 @@ class Application {
      * @access protected
      * @return void
      */
-    protected function setAppRoot($appName = 'demo', $appRoot = '') {
-        if (empty($appRoot)) {
-            $this->appRoot = $this->basePath . 'app' . $this->pathFix . $appName . $this->pathFix;
-        } else {
-            $this->appRoot = realpath($appRoot) . $this->pathFix;
-        }
+    protected function setAppRoot() {
+        $this->appRoot = realpath(dirname(dirname(ZTNB_ROOT))) . $this->pathFix;
+        
         if (!is_dir($this->appRoot))
             $this->triggerError("The app you call not found in {$this->appRoot}", __FILE__, __LINE__, $exit = true);
     }
@@ -829,8 +847,8 @@ class Application {
         $this->setModuleName('common');
         if ($this->setControlFile($exitIfNone = false)) {
             include $this->controlFile;
-            if (class_exists('common')) {
-                return new common();
+            if (class_exists('\\common')) {
+                return new \common();
             } else {
                 return false;
             }
@@ -980,7 +998,7 @@ class Application {
         include $file2Included;
 
         /* Set the class name of the control. */
-        $className = class_exists("my$moduleName") ? "my$moduleName" : $moduleName;
+        $className = class_exists("\\my$moduleName") ? "\\my$moduleName" : $moduleName;
         if (!class_exists($className))
             $this->triggerError("the control $className not found", __FILE__, __LINE__, $exit = true);
 
@@ -1171,7 +1189,7 @@ class Application {
         if (is_dir($classFile))
             $classFile .= $this->pathFix . $className;
         $classFile .= '.class.php';
-        if (!helper::import($classFile))
+        if (!\helper::import($classFile))
             $this->triggerError("class file $classFile not found", __FILE__, __LINE__, $exit = true);
 
         /* If staitc, return. */
@@ -1202,7 +1220,7 @@ class Application {
         if (!is_object($config))
             $config = new config();
         if (!isset($config->$moduleName))
-            $config->$moduleName = new stdclass();
+            $config->$moduleName = new \stdclass();
 
         $extConfigFiles = array();
 
@@ -1212,7 +1230,7 @@ class Application {
         } else {
             $mainConfigFile = $this->getModulePath($moduleName) . 'config.php';
             $extConfigPath = $this->getModuleExtPath($moduleName, 'config');
-            $extConfigFiles = helper::ls($extConfigPath, '.php');
+            $extConfigFiles = \helper::ls($extConfigPath, '.php');
         }
 
         /* Set the files to include. */
@@ -1263,7 +1281,7 @@ class Application {
      * @return void
      */
     public function exportConfig() {
-        $view = new stdclass();
+        $view = new \stdclass();
         $view->version = $this->config->version;
         $view->requestType = $this->config->requestType;
         $view->pathType = $this->config->pathType;
@@ -1293,7 +1311,7 @@ class Application {
         $modulePath = $this->getModulePath($moduleName);
         $mainLangFile = $modulePath . 'lang' . $this->pathFix . $this->clientLang . '.php';
         $extLangPath = $this->getModuleExtPath($moduleName, 'lang');
-        $extLangFiles = helper::ls($extLangPath . $this->clientLang, '.php');
+        $extLangFiles = \helper::ls($extLangPath . $this->clientLang, '.php');
 
         /* Set the files to includ. */
         if (!is_file($mainLangFile)) {
@@ -1379,7 +1397,7 @@ class Application {
             $dsn = "mysql:host={$params->host}; port={$params->port}; dbname={$params->name}";
         }
         try {
-            $dbh = new PDO($dsn, $params->user, $params->password, array(PDO::ATTR_PERSISTENT => $params->persistant));
+            $dbh = new \PDO($dsn, $params->user, $params->password, array(\PDO::ATTR_PERSISTENT => $params->persistant));
             $dbh->exec("SET NAMES {$params->encoding}");
 
             /* If run on linux, set emulatePrepare and bufferQuery to true. */
@@ -1388,14 +1406,14 @@ class Application {
             if (!isset($params->bufferQuery) and PHP_OS == 'Linux')
                 $params->bufferQuery = true;
 
-            $dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $dbh->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_OBJ);
+            $dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             if (isset($params->strictMode) and $params->strictMode == false)
                 $dbh->exec("SET @@sql_mode= ''");
             if (isset($params->emulatePrepare))
-                $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, $params->emulatePrepare);
+                $dbh->setAttribute(\PDO::ATTR_EMULATE_PREPARES, $params->emulatePrepare);
             if (isset($params->bufferQuery))
-                $dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $params->bufferQuery);
+                $dbh->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $params->bufferQuery);
 
             return $dbh;
         } catch (PDOException $exception) {
@@ -1551,7 +1569,7 @@ class config {
      * @return  void
      */
     public function set($key, $value) {
-        helper::setMember('config', $key, $value);
+        \helper::setMember('config', $key, $value);
     }
 
 }
@@ -1577,7 +1595,7 @@ class language {
      * @return  void
      */
     public function set($key, $value) {
-        helper::setMember('lang', $key, $value);
+        \helper::setMember('lang', $key, $value);
     }
 
     /**
