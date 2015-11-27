@@ -22,7 +22,13 @@ Redmine中只有Issue的概念,而禅道中有需求(Story)、任务(Task)、Bug
   * team 表：增加 id 自增字段
   * 。。。
 
+## 使用
 
+API 地址：
+
+/zentao_path_url/rest/
+
+.htaccess  中的RewriteBase 相应改一下
 
 
 

@@ -3,7 +3,7 @@ Options +FollowSymLinks +SymLinksIfOwnerMatch
 # framework router settings.
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /MS/zentaopms/www/redmine/
+  RewriteBase /MS/zentaopms/redmine/
   RewriteCond %{REQUEST_FILENAME} !-d 
   RewriteCond %{REQUEST_FILENAME} !-f 
   RewriteRule ^ index.php [QSA,L]

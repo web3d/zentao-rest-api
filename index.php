@@ -10,7 +10,7 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/inc/zentao/nb/Autoloader.php';
 \zentao\nb\Autoloader::register();
 
-$app = \zentao\core\Application::app(); //禅道的router
+$app = \zentao\core\Application::app(dirname(ZTNB_ROOT)); //禅道的router
 
 $slim = new \Slim\Slim();
 

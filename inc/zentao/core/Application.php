@@ -268,24 +268,23 @@ class Application {
      * @access protected
      * @return void
      */
-    protected function __construct($appName = 'demo', $appRoot = '') {
+    protected function __construct($appRoot) {
         $this->setPathFix();
+        $this->setAppRoot($appRoot);
         $this->setBasePath();
         $this->setFrameRoot();
         $this->setCoreLibRoot();
         /* Load the framework. */
-
-        include $this->frameRoot . 'control.class.php';
-        include $this->frameRoot . 'model.class.php';
-        include $this->frameRoot . 'helper.class.php';
-        
-        $this->setAppRoot($appName, $appRoot);
         $this->setTmpRoot();
         $this->setCacheRoot();
         $this->setLogRoot();
         $this->setConfigRoot();
         $this->setModuleRoot();
         $this->setThemeRoot();
+
+        include $this->frameRoot . 'control.class.php';
+        include $this->frameRoot . 'model.class.php';
+        include $this->frameRoot . 'helper.class.php';
 
         $this->setSuperVars();
 
@@ -324,9 +323,9 @@ class Application {
      * @access public
      * @return object   the app object
      */
-    public static function createApp($appName = 'demo', $appRoot = '') {
+    public static function createApp($appRoot = '') {
         $className = __CLASS__;
-        return new $className($appName, $appRoot);
+        return new $className($appRoot);
     }
     
     private static $_app;
@@ -337,9 +336,9 @@ class Application {
      * @param type $appRoot
      * @return Application
      */
-    public static function app($appName = 'demo', $appRoot = '') {
+    public static function app($appRoot) {
         if (!self::$_app instanceof Application) {
-            self::$_app = new Application($appName, $appRoot);
+            self::$_app = new Application($appRoot);
         }
         
         return self::$_app;
@@ -364,7 +363,7 @@ class Application {
      * @return void
      */
     protected function setBasePath() {
-        $this->basePath = realpath(dirname(dirname(ZTNB_ROOT))) . $this->pathFix;
+        $this->basePath = realpath($this->appRoot) . $this->pathFix;
     }
 
     /**
@@ -395,8 +394,8 @@ class Application {
      * @access protected
      * @return void
      */
-    protected function setAppRoot() {
-        $this->appRoot = realpath(dirname(dirname(ZTNB_ROOT))) . $this->pathFix;
+    protected function setAppRoot($appRoot) {
+        $this->appRoot = realpath($appRoot) . $this->pathFix;
         
         if (!is_dir($this->appRoot))
             $this->triggerError("The app you call not found in {$this->appRoot}", __FILE__, __LINE__, $exit = true);
