@@ -1,8 +1,17 @@
 <?php
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+namespace zentao\nb\resource;
 
+use zentao\nb\Resource;
+
+class Query extends Resource {
+    
+    public function index() {
+        echo json_encode(array(
+            'queries' => array(),
+            'total_count' => 0,
+            'offset' => 0,
+            'limit' => 25
+        ));
+    }
+}

@@ -22,4 +22,8 @@ class IssueCategory extends \zentao\nb\resource {
         
         echo json_encode(array('issue_categories' => $issue_statuses));
     }
+    
+    public function fetchAllByProjectId($projectId, $format = 'json') {
+        echo '{"issue_categories":[{"id":1,"project":{"id":1,"name":"project1"},"name":"qqq"}],"total_count":1}';
+    }
 }
