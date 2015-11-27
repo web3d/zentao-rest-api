@@ -18,9 +18,9 @@ Redmine中只有Issue的概念,而禅道中有需求(Story)、任务(Task)、Bug
 
 为了实现兼容特性，对禅道数据表做了少量的变更，主要是增加字段。
 
-user 表：增加 api_key 字段
-team 表：增加 id 自增字段
-。。。
+  * user 表：增加 api_key 字段
+  * team 表：增加 id 自增字段
+  * 。。。
 
 
 
