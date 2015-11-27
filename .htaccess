@@ -1,0 +1,20 @@
+Options +FollowSymLinks +SymLinksIfOwnerMatch
+
+# framework router settings.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /MS/zentaopms/www/redmine/
+  RewriteCond %{REQUEST_FILENAME} !-d 
+  RewriteCond %{REQUEST_FILENAME} !-f 
+  RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# php settings.
+php_value post_max_size 50M 
+php_flag  file_uploads On
+php_value upload_max_filesize 50M
+php_value display_errors 1
+# for post vars limit.
+php_value max_input_vars 3000 
+
+FileEtag none
