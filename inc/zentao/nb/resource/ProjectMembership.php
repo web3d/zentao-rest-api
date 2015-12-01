@@ -21,7 +21,6 @@ class ProjectMembership extends Resource {
             $this->responseNotExixted();
         }
         
-        $total_count = $model->dao->count();
         $limit = !empty($_GET['limit']) ? (int)$_GET['limit'] : 0;
         $offset = !empty($_GET['offset']) ? (int)$_GET['offset'] : 0;
         if ($offset > 0) {
@@ -29,19 +28,22 @@ class ProjectMembership extends Resource {
         }
         
         $teams = $model->getTeamMembers($projectId);
+        $total_count = $model->dao->count();
         
         $data = array();
         if (!$teams) {
             $this->responseNotExixted();
         }
         
+        $user_model = $this->loadModel('user');
         foreach ($teams as $team) {
+            $user = $user_model->getById($team->account);
             $_team = array(
                 'id' => $team->id,
                 'project' => array('id' => $team->project, 'name' => $project->name),
-                'user' => array('id' => 1, 'name' => $team->realname),
+                'user' => array('id' => $user->id, 'name' => ' ' . $user->realname),
                 //哪些角色有权限操作这个项目 redmine中体系比较复杂,还有group要考虑
-                'roles' => array(array('id' => 0, 'name' => $team->role)),
+                'roles' => array(array('id' => 1, 'name' => $team->role)),
             );
             $data[] = $_team;
         }

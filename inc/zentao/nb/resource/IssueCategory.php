@@ -2,7 +2,7 @@
 
 namespace zentao\nb\resource;
 
-use zentao\nb\enum\IssueCategory AS Category;
+use zentao\nb\enum\BugType;
 
 /**
  * 项目自行定义的问题分类
@@ -12,21 +12,18 @@ class IssueCategory extends \zentao\nb\resource {
     public function fetchAll($format = 'json') {
         global $app;
 
-        $statuses = $app->loadLang('bug')->bug->typeList;
-        $issue_statuses = array();
-        foreach ($statuses as $key => $status) {
-            if ($status == '') {
-                $status = '-';
-            }
+        $types = $app->loadLang('bug')->bug->typeList;
+        $issue_categories = array();
+        foreach ($types as $key => $name) {
             
-            $issue_statuses[] = array('id' => $key, 'name' => $status);
+            $issue_categories[] = array('id' => BugType::getIdByInterId($key), 'name' => $name);
         }
         
-        echo json_encode(array('issue_categories' => $issue_statuses));
+        echo json_encode(array('issue_categories' => $issue_categories));
     }
     
     /**
-     *  用 分类来区分 禅道中的任务和 bug
+     *   根据项目来取其中定义的分类
      * @param int $projectId
      * @param string $format
      */
@@ -36,11 +33,17 @@ class IssueCategory extends \zentao\nb\resource {
         if (!$project) {
             $this->responseNotExixted();
         }
+        
+        global $app;
+        $types = $app->loadLang('bug')->bug->typeList;
+        $issue_categories = array();
+        foreach ($types as $key => $name) {
+            
+            $issue_categories[] = array('id' => BugType::getIdByInterId($key), 'project' => array('id' => $projectId, 'name' => $project->name), 'name' => $name);
+        }
+        
         echo json_encode(array(
-            'issue_categories' => array(
-                array('id' => Category::BUG, 'name' => 'Bug', 'project' => array('id' => $projectId, 'name' => $project->name)),
-                array('id' => Category::TASK, 'name' => 'Task', 'project' => array('id' => $projectId, 'name' => $project->name)),
-            ),
+            'issue_categories' => $issue_categories,
             'total_count' => 2
         ));
     }

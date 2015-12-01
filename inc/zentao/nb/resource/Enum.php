@@ -39,7 +39,7 @@ class Enum extends Resource {
      * 返回时间实体活动字典列表
      */
     public function time_entry_activities() {
-        
+        echo '{"time_entry_activities":[{"id":3,"name":"dev"},{"id":4,"name":"design"}]}';
     }
     
     public function time_entries() {

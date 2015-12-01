@@ -3,6 +3,7 @@
 namespace zentao\nb\resource;
 
 use zentao\nb\Resource;
+use zentao\nb\enum\BugType;
 
 /**
  * 问题列表
@@ -36,17 +37,24 @@ class Issue extends Resource {
             $this->responseNotExixted();
         }
         
+        $user_model = $this->loadModel('user');
+        $proj_model = $this->loadModel('project');
         foreach ($issues as $issue) {
+            $type_id = BugType::getIdByInterId($issue->type);
+            $opened_user = $user_model->getById($issue->openedBy);
+            $assgined_user = $user_model->getById($issue->assignedTo);
+            $project = $proj_model->getById($issue->project);
             $_issue = array(
                 'id' => (int)$issue->id,
                 'subject' => $issue->title,
-                'project' => array('id' => $issue->project, 'name' => $issue->project .'111'),
-                'tracker' => array('id' => 1, 'name' => $issue->type),
-                'status' => array('id' => 1, 'name' => 'issue'),
-                'priority' => array('id' => $issue->pri, 'name' => '11'),
-                'author' => array('id' => 1, 'name' => $issue->openedBy), //TODO
-                'assigned_to' => array('id' => 1, 'name' => $issue->assignedTo), //TODO
-                'description' => '',//$issue->steps
+                'project' => array('id' => $issue->project, 'name' => $project->name),
+                'tracker' => array('id' => 1, 'name' => 'Bug'), //$issue->type
+                'status' => array('id' => 1, 'name' => 'active'),
+                'priority' => array('id' => (int)$issue->pri, 'name' => $issue->pri),
+                'author' => array('id' => $opened_user->id, 'name' => $issue->openedBy), //TODO
+                'category' => array('id' => $type_id, 'name' => BugType::findLabelById($type_id)), //TODO
+                'assigned_to' => array('id' => $assgined_user->id, 'name' => $issue->assignedTo), //TODO
+                'description' => $issue->steps,//
                 'start_date' => date('Y-m-d', strtotime($issue->assignedDate)),
                 'due_date' => date('Y-m-d', strtotime($issue->assignedDate) + 1000000),
                 'done_ratio' => 0,
@@ -71,15 +79,23 @@ class Issue extends Resource {
         if (!$issue) {
             $this->responseNotExixted();
         }
+        
+        $user_model = $this->loadModel('user');
+        $proj_model = $this->loadModel('project');
+        $type_id = BugType::getIdByInterId($issue->type);
+        $opened_user = $user_model->getById($issue->openedBy);
+        $assgined_user = $user_model->getById($issue->assignedTo);
+        $project = $proj_model->getById($issue->project);
 
         $_issue = array(
             'id' => (int)$issue->id,
-            'project' => array('id' => (int)$issue->project, 'name' => '111'),
+            'project' => array('id' => (int)$issue->project, 'name' => $project->name),
             'subject' => $issue->title,
-            'tracker' => array('id' => 1, 'name' => '11'),//
-            'priority' => array('id' => 1, 'name' => '11'),
-            'author' => array('id' => 1, 'name' => $issue->openedBy),
-            'assigned_to' => array('id' => 1, 'name' => $issue->assignedTo),
+            'tracker' => array('id' => 1, 'name' => 'Bug'),//
+            'category' => array('id' => $type_id, 'name' => BugType::findLabelById($type_id)), //TODO
+            'priority' => array('id' => (int)$issue->pri, 'name' => $issue->pri),
+            'author' => array('id' => $opened_user->id, 'name' => $issue->openedBy),
+            'assigned_to' => array('id' => $assgined_user->id, 'name' => $issue->assignedTo),
             'description' => '', //$issue->steps
             'start_date' => date('Y-m-d', strtotime($issue->assignedDate)),
             'due_date' => date('Y-m-d', strtotime($issue->assignedDate) + 1000000),

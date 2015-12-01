@@ -6,7 +6,7 @@ namespace zentao\nb\enum;
  * Issue分类 枚举类型定义
  * 尝试将禅道中的任务和 bug 以 redmine 分类的形式提供
  */
-class IssueCategory {
+class IssueTracker {
     
     const BUG = 1;
     const TASK = 2;
@@ -21,10 +21,24 @@ class IssueCategory {
      */
     const PREFIX_TASK = 200;
     
-    public function getLabels() {
+    /**
+     * 
+     * @return array 返回所有 tracker
+     */
+    public static function getLabels() {
         return array(
             self::BUG => 'Bug',
             self::TASK => 'Task'
         );
+    }
+    
+    /**
+     * 得到标签
+     * @param int $id
+     * @return string
+     */
+    public static function getLabel($id) {
+        $labels = self::getLabels();
+        return isset($labels[$id]) ? $labels[$id] : $labels[self::BUG];
     }
 }
