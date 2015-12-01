@@ -54,7 +54,7 @@ class Issue extends Resource {
                 'author' => array('id' => $opened_user->id, 'name' => $issue->openedBy), //TODO
                 'category' => array('id' => $type_id, 'name' => BugType::findLabelById($type_id)), //TODO
                 'assigned_to' => array('id' => $assgined_user->id, 'name' => $issue->assignedTo), //TODO
-                'description' => $issue->steps,//
+                'description' => '',//$issue->steps //有特殊符号会挂掉
                 'start_date' => date('Y-m-d', strtotime($issue->assignedDate)),
                 'due_date' => date('Y-m-d', strtotime($issue->assignedDate) + 1000000),
                 'done_ratio' => 0,
@@ -96,7 +96,7 @@ class Issue extends Resource {
             'priority' => array('id' => (int)$issue->pri, 'name' => $issue->pri),
             'author' => array('id' => $opened_user->id, 'name' => $issue->openedBy),
             'assigned_to' => array('id' => $assgined_user->id, 'name' => $issue->assignedTo),
-            'description' => '', //$issue->steps
+            'description' => '',//$issue->steps //有特殊符号会挂掉
             'start_date' => date('Y-m-d', strtotime($issue->assignedDate)),
             'due_date' => date('Y-m-d', strtotime($issue->assignedDate) + 1000000),
             'done_ratio' => 0,
