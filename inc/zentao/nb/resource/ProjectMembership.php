@@ -16,13 +16,19 @@ class ProjectMembership extends Resource {
         
         $model = $this->loadModel('project');
         
-        $project = $model->getById($id);//TODO 支持按项目代号查找
+        $project = $model->getById($projectId);//TODO 支持按项目代号查找
         if (!$project) {
             $this->responseNotExixted();
         }
         
-        $teams = $model->getTeamMembers($projectId);
         $total_count = $model->dao->count();
+        $limit = !empty($_GET['limit']) ? (int)$_GET['limit'] : 0;
+        $offset = !empty($_GET['offset']) ? (int)$_GET['offset'] : 0;
+        if ($offset > 0) {
+            $this->response(array('memberships' => array(), 'total_count' => $total_count, 'offset' => $limit * $offset, 'limit' => $limit));
+        }
+        
+        $teams = $model->getTeamMembers($projectId);
         
         $data = array();
         if (!$teams) {
@@ -40,6 +46,6 @@ class ProjectMembership extends Resource {
             $data[] = $_team;
         }
         
-        $this->response(array('memberships' => $data, 'total_count' => $total_count, 'offset' => 0, 'limit' => $total_count));
+        $this->response(array('memberships' => $data, 'total_count' => $total_count, 'offset' => $limit * $offset, 'limit' => $limit));
     }
 }

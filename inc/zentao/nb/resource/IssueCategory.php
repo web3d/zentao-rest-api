@@ -2,6 +2,8 @@
 
 namespace zentao\nb\resource;
 
+use zentao\nb\enum\IssueCategory AS Category;
+
 /**
  * 项目自行定义的问题分类
  */
@@ -14,7 +16,7 @@ class IssueCategory extends \zentao\nb\resource {
         $issue_statuses = array();
         foreach ($statuses as $key => $status) {
             if ($status == '') {
-                $status = 'unknown';
+                $status = '-';
             }
             
             $issue_statuses[] = array('id' => $key, 'name' => $status);
@@ -23,7 +25,23 @@ class IssueCategory extends \zentao\nb\resource {
         echo json_encode(array('issue_categories' => $issue_statuses));
     }
     
+    /**
+     *  用 分类来区分 禅道中的任务和 bug
+     * @param int $projectId
+     * @param string $format
+     */
     public function fetchAllByProjectId($projectId, $format = 'json') {
-        echo '{"issue_categories":[{"id":1,"project":{"id":1,"name":"project1"},"name":"qqq"}],"total_count":1}';
+        $model = $this->loadModel('project');
+        $project = $model->getById($projectId);//TODO 支持按项目代号查找
+        if (!$project) {
+            $this->responseNotExixted();
+        }
+        echo json_encode(array(
+            'issue_categories' => array(
+                array('id' => Category::BUG, 'name' => 'Bug', 'project' => array('id' => $projectId, 'name' => $project->name)),
+                array('id' => Category::TASK, 'name' => 'Task', 'project' => array('id' => $projectId, 'name' => $project->name)),
+            ),
+            'total_count' => 2
+        ));
     }
 }

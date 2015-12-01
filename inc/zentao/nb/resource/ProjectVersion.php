@@ -14,7 +14,6 @@ class ProjectVersion extends Resource {
         
         $builds = $model->getProjectBuilds($projectId);
         $total_count = $model->dao->count();
-        //var_dump($builds);exit;
         
         $data = array();
         if (!$builds) {

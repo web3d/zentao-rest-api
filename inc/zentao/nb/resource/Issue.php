@@ -17,9 +17,13 @@ class Issue extends Resource {
         
         $model = $this->loadModel('bug');
         
-        $issues = $model->getByList();
+        $project_id = !empty($_GET['project_id']) ? (int) $_GET['project_id'] : null;
+        if ($project_id > 0) {
+            $issues = $model->getProjectBugs($project_id);
+        } else {
+            $issues = $model->getByList();
+        }
         $total_count = $model->dao->count();
-        //var_dump($issues);
         
         $limit = !empty($_GET['limit']) ? (int)$_GET['limit'] : 0;
         $offset = !empty($_GET['offset']) ? (int)$_GET['offset'] : 0;
@@ -37,11 +41,11 @@ class Issue extends Resource {
                 'id' => (int)$issue->id,
                 'subject' => $issue->title,
                 'project' => array('id' => $issue->project, 'name' => $issue->project .'111'),
-                'tracker' => array('id' => 1, 'name' => '11'),
+                'tracker' => array('id' => 1, 'name' => $issue->type),
                 'status' => array('id' => 1, 'name' => 'issue'),
-                'priority' => array('id' => 1, 'name' => '11'),
-                'author' => array('id' => 1, 'name' => 'admin'), //TODO
-                'assigned_to' => array('id' => 1, 'name' => 'admin'), //TODO
+                'priority' => array('id' => $issue->pri, 'name' => '11'),
+                'author' => array('id' => 1, 'name' => $issue->openedBy), //TODO
+                'assigned_to' => array('id' => 1, 'name' => $issue->assignedTo), //TODO
                 'description' => '',//$issue->steps
                 'start_date' => date('Y-m-d', strtotime($issue->assignedDate)),
                 'due_date' => date('Y-m-d', strtotime($issue->assignedDate) + 1000000),
@@ -62,8 +66,6 @@ class Issue extends Resource {
      * @param string $format
      */
     public function fetch($id, $format = 'json') {
-        //echo '{"issue":{"id":1,"project":{"id":1,"name":"project1"},"tracker":{"id":1,"name":"track tag1"},"status":{"id":1,"name":"issue"},"priority":{"id":1,"name":"1"},"author":{"id":2,"name":"Redmine Admin"},"assigned_to":{"id":2,"name":"Redmine Admin"},"subject":"issue 144445555","description":"","start_date":"2015-11-15","due_date":"2015-11-17","done_ratio":0,"spent_hours":0.0,"created_on":"2015-11-15T06:36:35Z","updated_on":"2015-11-15T06:38:28Z","attachments":[],"journals":[{"id":1,"user":{"id":2,"name":"Redmine Admin"},"notes":"","created_on":"2015-11-15T06:38:02Z","details":[{"property":"attr","name":"subject","old_value":"issue 1","new_value":"issue 144445555"}]},{"id":2,"user":{"id":2,"name":"Redmine Admin"},"notes":"","created_on":"2015-11-15T06:38:28Z","details":[{"property":"attr","name":"due_date","new_value":"2015-11-17"},{"property":"attr","name":"assigned_to_id","new_value":"2"}]}],"watchers":[]}}';
-        //exit;
         $model = $this->loadModel('bug');
         $issue = $model->getById($id);
         if (!$issue) {
@@ -76,9 +78,9 @@ class Issue extends Resource {
             'subject' => $issue->title,
             'tracker' => array('id' => 1, 'name' => '11'),//
             'priority' => array('id' => 1, 'name' => '11'),
-            'author' => array('id' => 1, 'name' => 'admin'),
-            'assigned_to' => array('id' => 1, 'name' => 'admin'),
-            'description' => 'yyy', //$issue->steps
+            'author' => array('id' => 1, 'name' => $issue->openedBy),
+            'assigned_to' => array('id' => 1, 'name' => $issue->assignedTo),
+            'description' => '', //$issue->steps
             'start_date' => date('Y-m-d', strtotime($issue->assignedDate)),
             'due_date' => date('Y-m-d', strtotime($issue->assignedDate) + 1000000),
             'done_ratio' => 0,

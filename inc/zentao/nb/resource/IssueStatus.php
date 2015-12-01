@@ -25,7 +25,7 @@ class IssueStatus extends \zentao\nb\resource {
         $issue_statuses = array();
         foreach ($statuses as $key => $status) {
             if ($status == '') {
-                $status = 'unknown';
+                $status = '-';
             }
             
             $issue_statuses[] = array('id' => (isset($this->map[$key]) ? $this->map[$key] : $this->map['null']), 'name' => $status);

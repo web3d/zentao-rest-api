@@ -3,7 +3,7 @@
 namespace zentao\nb\resource;
 
 /**
- * 问题的类型
+ * 问题的类型 用 bug 的类型来代替
  * 
  */
 class Tracker extends \zentao\nb\resource {
@@ -30,7 +30,7 @@ class Tracker extends \zentao\nb\resource {
         $trackers = array();
         foreach ($types as $key => $type) {
             if ($type == '') {
-                $type = 'unknown';
+                $type = '-';
             }
             
             $trackers[] = array('id' => (isset($this->map[$key]) ? $this->map[$key] : $this->map['null']), 'name' => $type);
